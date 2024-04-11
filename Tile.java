@@ -1,0 +1,133 @@
+package test;
+import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class Tile {
+    final public char letter;
+    final public int score;
+
+    private Tile(char letter, int score) {
+        this.letter = letter;
+        this.score = score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tile tile = (Tile) o;
+        return letter == tile.letter && score == tile.score;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(letter, score);
+    }
+
+
+
+    public static class Bag {
+        private int amountOfLetterInBag = 98;
+        private int[] letterAmount = {9,2,2,4,12,2,3,2,9,1,1,4,2,6,8,2,1,6,4,6,4,2,2,1,2,1};
+        private int[] currentLettersAmount = {9,2,2,4,12,2,3,2,9,1,1,4,2,6,8,2,1,6,4,6,4,2,2,1,2,1};
+
+        private Tile[] tiles = {
+                new Tile('A', 1),
+                new Tile('B', 3),
+                new Tile('C', 3),
+                new Tile('D', 2),
+                new Tile('E', 1),
+                new Tile('F', 4),
+                new Tile('G', 2),
+                new Tile('H', 4),
+                new Tile('I', 1),
+                new Tile('J', 8),
+                new Tile('K', 5),
+                new Tile('L', 1),
+                new Tile('M', 3),
+                new Tile('N', 1),
+                new Tile('O', 1),
+                new Tile('P', 3),
+                new Tile('Q', 10),
+                new Tile('R', 1),
+                new Tile('S', 1),
+                new Tile('T', 1),
+                new Tile('U', 1),
+                new Tile('V', 4),
+                new Tile('W', 4),
+                new Tile('X', 8),
+                new Tile('Y', 4),
+                new Tile('Z', 10)
+        };
+        private static Bag SingleBag = null;
+        private Bag() {}
+
+        public static Bag getBag() {
+            if(SingleBag == null){
+                SingleBag = new Bag();
+            }
+            return SingleBag;
+        }
+
+        private boolean isBagEmpty() {
+            return this.amountOfLetterInBag == 0;
+        }
+
+        public Tile getRand() {
+
+            if (this.isBagEmpty()) return null;
+
+            int randomTile;
+
+            do {
+                randomTile = ThreadLocalRandom.current().nextInt(0, 26);
+            } while (this.currentLettersAmount[randomTile] == 0);
+
+            this.currentLettersAmount[randomTile] -= 1;
+            this.amountOfLetterInBag -= 1;
+            return this.tiles[randomTile];
+        }
+
+        public Tile getTile(char letter) {
+
+            if (this.isBagEmpty()) return null;
+
+            for (int i = 0; i < this.tiles.length; i++) {
+                if(this.tiles[i].letter == letter) {
+                    if(this.currentLettersAmount[i] > 0) {
+                        this.currentLettersAmount[i] -= 1;
+                        this.amountOfLetterInBag -= 1;
+                        return this.tiles[i];
+                    }
+                    break;
+                }
+            }
+
+            return null;
+        }
+
+        public void put(Tile tile) {
+            for (int i = 0; i < this.tiles.length; i++) {
+                if(this.tiles[i].letter == tile.letter) {
+                    if(this.currentLettersAmount[i] + 1 <= this.letterAmount[i]) {
+                        this.currentLettersAmount[i] += 1;
+                        this.amountOfLetterInBag += 1;
+                    }
+                    return;
+                }
+            }
+        }
+        public int size() {
+            int counter = 0;
+
+            for (int i = 0; i < this.tiles.length; i++) {
+                if(this.currentLettersAmount[i] > 0) counter++;
+            }
+            return counter;
+        }
+
+        public int[] getQuantities() {
+            return this.currentLettersAmount.clone();
+        }
+    }
+}

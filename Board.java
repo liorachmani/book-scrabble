@@ -2,63 +2,9 @@ package test;
 import java.util.ArrayList;
 
 public class Board {
-    public class BoardSquare {
-        private Tile tile;
-        private boolean isOccupied;
-        private int letterMultiplier;
-        private int wordMultiplier;
-
-        private BoardSquare(Tile tile, boolean isOccupied, int letterMultiplier, int wordMultiplier) {
-            this.tile = tile;
-            this.isOccupied = isOccupied;
-            this.letterMultiplier = letterMultiplier;
-            this.wordMultiplier = wordMultiplier;
-        }
-
-        private BoardSquare() {
-            this(null, false, 1, 1);
-        }
-
-        private BoardSquare(int letterMultiplier, int wordMultiplier) {
-            this(null, false, letterMultiplier, wordMultiplier);
-        }
-
-        public Tile getTile() {
-            return tile;
-        }
-
-        public void setTile(Tile tile) {
-            this.tile = tile;
-            this.isOccupied = true;
-        }
-
-        public boolean isOccupied() {
-            return isOccupied;
-        }
-
-        public void setOccupied(boolean occupied) {
-            isOccupied = occupied;
-        }
-
-        public int getLetterMultiplier() {
-            return letterMultiplier;
-        }
-
-        public void setLetterMultiplier(int letterMultiplier) {
-            this.letterMultiplier = letterMultiplier;
-        }
-
-        public int getWordMultiplier() {
-            return wordMultiplier;
-        }
-
-        public void setWordMultiplier(int wordMultiplier) {
-            this.wordMultiplier = wordMultiplier;
-        }
-    }
-
+    private boolean isFirstTurn = true;
     private final int BOARD_SIZE = 15;
-    private BoardSquare[][] board = new BoardSquare[][]{{
+    private final BoardSquare[][] board = {{
             new BoardSquare(1, 3),
             new BoardSquare(),
             new BoardSquare(),
@@ -300,15 +246,15 @@ public class Board {
             new BoardSquare(1, 3),
     }
     };
-    private static Board SingleBoard = null;
+    private static Board singleBoard = null;
 
     private Board() {}
 
     public static Board getBoard() {
-        if(SingleBoard == null) {
-            SingleBoard = new Board();
+        if(singleBoard == null) {
+            singleBoard = new Board();
         }
-        return SingleBoard;
+        return singleBoard;
     }
 
     public Tile[][] getTiles() {
@@ -352,14 +298,14 @@ public class Board {
         if(word.isVertical()) {
             for (int i = row; i < row + wordTiles.length; i++) {
                 if (wordTiles[i - row] != null && board[i][col].isOccupied()) {
-                        return true;
+                    return true;
                 }
             }
         }
         else {
             for (int i = col; i < col + wordTiles.length; i++) {
                 if (wordTiles[i - col] != null && board[row][i].isOccupied()) {
-                        return true;
+                    return true;
                 }
             }
         }
@@ -373,18 +319,7 @@ public class Board {
         int wordLength = word.getTiles().length;
         int centerIndex = BOARD_SIZE / 2;
 
-        // Very much not efficient - but for now
-        boolean isFirstTurn = true;
-        for (int i = 0; i < board[0].length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if(board[i][j].isOccupied()) {
-                    isFirstTurn = false;
-                    break;
-                }
-            }
-        }
-
-        if(isFirstTurn) {
+        if(this.isFirstTurn) {
             if(word.isVertical()) {
                 return row <= centerIndex && centerIndex <= row + wordLength && col == centerIndex;
             } else {
@@ -444,10 +379,7 @@ public class Board {
             return true;
         }
         newRow = tileRow + 1;
-        if (newRow < board.length && board[newRow][tileColumn].isOccupied()) {
-            return true;
-        }
-        return false;
+        return newRow < board.length && board[newRow][tileColumn].isOccupied();
     }
 
     private boolean isAdjacentToExistingTileHorizontal(int tileRow, int tileColumn) {
@@ -457,10 +389,7 @@ public class Board {
             return true;
         }
         newColumn = tileColumn + 1;
-        if (newColumn < board[0].length && board[tileRow][newColumn].isOccupied()) {
-            return true;
-        }
-        return false;
+        return newColumn < board[0].length && board[tileRow][newColumn].isOccupied();
     }
 
     public boolean dictionaryLegal(Word word) {
@@ -570,10 +499,10 @@ public class Board {
         for (Tile currentTile : tiles) {
             Tile tileForCalculation = currentTile != null ? currentTile : board[row][col].getTile();
 
-            score += tileForCalculation.score * board[row][col].letterMultiplier;
+            score += tileForCalculation.score * board[row][col].getLetterMultiplier();
 
             // Accumulate word multipliers
-            wordMultiplier *= board[row][col].wordMultiplier;
+            wordMultiplier *= board[row][col].getWordMultiplier();
 
             if(isVertical) {
                 row++;
@@ -596,6 +525,7 @@ public class Board {
                 if(row == BOARD_SIZE / 2 && col == BOARD_SIZE / 2) {
                     board[row][col].setLetterMultiplier(1);
                     board[row][col].setWordMultiplier(1);
+                    this.isFirstTurn = false;
                 }
                 board[row][col].setOccupied(true);
                 board[row][col].setTile(currentTile);
@@ -630,5 +560,4 @@ public class Board {
 
         return totalScore;
     }
-  
 }

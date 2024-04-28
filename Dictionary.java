@@ -29,7 +29,7 @@ public class Dictionary {
                     }
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println("Error reading data from files: " + e.getMessage());
             }
         }
     }
@@ -39,10 +39,7 @@ public class Dictionary {
         if(this.nonExistingWordsCache.query(word)) return false;
 
         boolean isWordExistUsingBloom = this.bloomFilter.contains(word);
-        if(isWordExistUsingBloom) {
-            this.existingWordsCache.add(word);
-        }
-        else {
+        if(!isWordExistUsingBloom) {
             this.nonExistingWordsCache.add(word);
         }
 
@@ -64,6 +61,7 @@ public class Dictionary {
             return isWordExistUsingIOSearcher;
 
         } catch (IOException e) {
+            System.out.println("Error challenging a word: " + e.getMessage());
             return false;
         }
     }

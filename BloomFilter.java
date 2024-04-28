@@ -19,27 +19,19 @@ public class BloomFilter {
     public void add(String word) {
         for (String algorithm : this.algorithms) {
             try {
-                MessageDigest md = MessageDigest.getInstance(algorithm);
-                byte[] bts = md.digest(word.getBytes());
-                BigInteger bi = new BigInteger(bts);
-                int bitsAsInt = Math.abs(bi.intValue());
-                int bitIndex = bitsAsInt % this.bitsArrayLength;
-
+                int bitIndex = calculateBitIndex(word, algorithm);
                 this.bitsSet.set(bitIndex);
             }
-            catch (NoSuchAlgorithmException ignored) {}
+            catch (NoSuchAlgorithmException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
     public boolean contains(String word) {
         for (String algorithm : this.algorithms) {
             try {
-                MessageDigest md = MessageDigest.getInstance(algorithm);
-                byte[] bts = md.digest(word.getBytes());
-                BigInteger bi = new BigInteger(bts);
-                int bitsAsInt = Math.abs(bi.intValue());
-                int bitIndex = bitsAsInt % this.bitsArrayLength;
-
+                int bitIndex = calculateBitIndex(word, algorithm);
                 if(!this.bitsSet.get(bitIndex)) return false;
             }
             catch (NoSuchAlgorithmException ignored) {}
@@ -48,15 +40,25 @@ public class BloomFilter {
         return true;
     }
 
+    private int calculateBitIndex(String word, String algorithm) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        byte[] bts = md.digest(word.getBytes());
+        BigInteger bi = new BigInteger(bts);
+        int bitsAsInt = Math.abs(bi.intValue());
+        int bitIndex = bitsAsInt % this.bitsArrayLength;
+
+        return bitIndex;
+    }
+
     @Override
     public String toString() {
-        String bitsAsStr = "";
+        StringBuilder bitsAsStr = new StringBuilder();
 
         for (int i = 0; i < this.bitsSet.length(); i++) {
             String currentBitAsStr = this.bitsSet.get(i) ? "1" : "0";
-            bitsAsStr = bitsAsStr.concat(currentBitAsStr);
+            bitsAsStr.append(currentBitAsStr);
         }
 
-        return bitsAsStr;
+        return bitsAsStr.toString();
     }
 }

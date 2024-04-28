@@ -15,8 +15,6 @@ public class MyServer {
         this.port = port;
         this.clientHandler = clientHandler;
         this.stop = false;
-
-
     }
 
     public void start() {

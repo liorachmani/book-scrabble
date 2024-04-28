@@ -5,7 +5,6 @@ public class DictionaryManager {
     private static DictionaryManager singleDictionaryManager = null;
     private final HashMap<String, Dictionary> dict = new HashMap<>();
 
-
     public boolean query(String ...fileNames) {
         boolean found = false;
         String word = fileNames[fileNames.length - 1];
@@ -43,7 +42,6 @@ public class DictionaryManager {
 
         return found;
     }
-
 
     public int getSize() {
         return this.dict.size();
